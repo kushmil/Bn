@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>P.T. B.N. Jha Memorial Inter College | Deoghar</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#F3F4F6">
+    <meta name="description" content="Official Portal of P.T. B.N. Jha Memorial Inter College, Deoghar. Affiliated to JAC Ranchi.">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- PWA Manifest (Embedded as Data URI for single-file requirement) -->
+    <link rel="manifest" href="data:application/manifest+json;charset=utf-8,%7B%22name%22%3A%22PTBN%20Jha%20College%22%2C%22short_name%22%3A%22PTBN%20College%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23F3F4F6%22%2C%22theme_color%22%3A%22%23F3F4F6%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAyNCAyNCcgZmlsbD0nbm9uZScgc3Ryb2tlPSdibGFjaycgc3Ryb2tlLXdpZHRoPScyJz48cGF0aCBkPSdNMjIgMTBMMTIgNUwyIDEwbTEwIDEzdjBtMCAwTDMyMScvPjwvc3ZnPg%3D%3D%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%7D%5D%7D">
+
+    <!-- Google Fonts: Space Grotesk -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (Script for Custom Config) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    colors: {
+                        bgLight: '#F3F4F6', bgDark: '#09090B',
+                        cardLight: '#FFFFFF', cardDark: '#18181B',
+                        textLight: '#09090B', textDark: '#FAFAFA',
+                        brand: { neon: '#CCFF00', purple: '#A855F7', blue: '#3B82F6', orange: '#F97316', red: '#EF4444' }
+                    },
+                    borderRadius: { '4xl': '2rem' },
+                    animation: {
+                        'blob': 'blob 7s infinite',
+                        'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    },
+                    keyframes: {
+                        blob: { '0%': { transform: 'translate(0px, 0px) scale(1)' }, '33%': { transform: 'translate(30px, -50px) scale(1.1)' }, '66%': { transform: 'translate(-20px, 20px) scale(0.9)' }, '100%': { transform: 'translate(0px, 0px) scale(1)' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Phosphor Icons (Modern SVG icons) -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- SweetAlert2 & iziToast CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/dist/sweetalert2.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/izitoast/1.4.0/css/iziToast.min.css" rel="stylesheet">
+
+    <style>
+        /* Base & Theme Transitions */
+        body { background-color: theme('colors.bgLight'); color: theme('colors.textLight'); transition: background-color 0.4s ease, color 0.4s ease; overflow-x: hidden; }
+        .dark body { background-color: theme('colors.bgDark'); color: theme('colors.textDark'); }
+
+        /* Splash Screen */
+        #splash-screen { transition: opacity 0.5s ease-in-out, visibility 0.5s; z-index: 99999; }
+
+        /* SPA Page Transition */
+        .page-view { display: none; opacity: 0; transform: translateY(10px); transition: opacity 0.4s ease, transform 0.4s ease; }
+        .page-view.active { display: block; opacity: 1; transform: translateY(0); }
+
+        /* Bento Box Styling */
+        .bento-card {
+            background-color: theme('colors.cardLight'); border-radius: 2rem; padding: 2rem; position: relative; overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease, background-color 0.4s ease;
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .dark .bento-card { background-color: theme('colors.cardDark'); border-color: rgba(255,255,255,0.05); }
+        .bento-card:hover.interactive { transform: translateY(-4px) scale(1.01); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1); cursor: pointer; }
+        .dark .bento-card:hover.interactive { box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+
+        /* Customizing SweetAlert */
+        .swal2-popup { font-family: 'Space Grotesk', sans-serif !important; border-radius: 24px !important; }
+        .dark .swal2-popup { background-color: #18181B !important; color: #FAFAFA !important; }
+        .dark .swal2-title, .dark .swal2-html-container { color: #FAFAFA !important; }
+        .dark .swal2-input, .dark .swal2-select { background: #27272A !important; color: white !important; border-color: #3F3F46 !important; }
+
+        /* Noise texture */
+        .noise-bg { position: absolute; inset: 0; opacity: 0.03; z-index: 0; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"); }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- 1. SPLASH SCREEN -->
+    <div id="splash-screen" class="fixed inset-0 bg-bgLight dark:bg-bgDark flex flex-col items-center justify-center">
+        <div class="relative w-32 h-32 flex items-center justify-center mb-6">
+            <div class="absolute top-0 -left-4 w-20 h-20 bg-brand-neon rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+            <div class="absolute top-0 -right-4 w-20 h-20 bg-brand-blue rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+            <div class="absolute -bottom-8 left-6 w-20 h-20 bg-brand-purple rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+            
+            <div class="w-20 h-20 bg-textLight dark:bg-textDark text-bgLight dark:text-bgDark rounded-2xl flex items-center justify-center text-4xl relative z-10 shadow-2xl">
+                <i class="ph-fill ph-books"></i>
+            </div>
+        </div>
+        <h1 class="text-3xl font-bold tracking-tight text-center relative z-10 dark:text-white">P.T. B.N. Jha Memorial</h1>
+        <p class="text-gray-500 dark:text-gray-400 font-medium tracking-widest uppercase text-sm mt-2 relative z-10">Inter College</p>
+    </div>
+
+    <!-- Navigation -->
+    <nav id="main-nav" class="fixed top-0 w-full z-50 bg-bgLight/80 dark:bg-bgDark/80 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 transition-all duration-400 opacity-0 transform -translate-y-full">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            
+            <div class="flex items-center gap-2 cursor-pointer" onclick="navigate('home')">
+                <div class="w-10 h-10 bg-textLight dark:bg-textDark text-bgLight dark:text-bgDark rounded-xl flex items-center justify-center font-bold text-xl transition-colors">
+                    <i class="ph ph-books"></i>
+                </div>
+                <div class="font-bold leading-tight hidden sm:block dark:text-white">
+                    P.T. B.N. Jha <br><span class="text-xs text-gray-500 dark:text-gray-400">Memorial Inter College</span>
+                </div>
+            </div>
+
+            <div class="hidden md:flex items-center gap-1 bg-gray-100 dark:bg-[#18181B] p-1 rounded-full border border-gray-200 dark:border-gray-800">
+                <button onclick="navigate('home')" class="nav-btn px-5 py-2 rounded-full text-sm font-semibold hover:bg-white dark:hover:bg-[#27272A] dark:text-gray-200 dark:hover:text-white transition-all">Home</button>
+                <button onclick="navigate('streams')" class="nav-btn px-5 py-2 rounded-full text-sm font-semibold hover:bg-white dark:hover:bg-[#27272A] dark:text-gray-200 dark:hover:text-white transition-all">Streams</button>
+                <button onclick="navigate('syllabus')" class="nav-btn px-5 py-2 rounded-full text-sm font-semibold hover:bg-white dark:hover:bg-[#27272A] dark:text-gray-200 dark:hover:text-white transition-all">Syllabus</button>
+                <button onclick="navigate('about')" class="nav-btn px-5 py-2 rounded-full text-sm font-semibold hover:bg-white dark:hover:bg-[#27272A] dark:text-gray-200 dark:hover:text-white transition-all">About</button>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <button onclick="toggleTheme()" class="w-10 h-10 rounded-full bg-gray-200 dark:bg-[#27272A] flex items-center justify-center hover:scale-110 transition-transform text-xl">
+                    <i class="ph-fill ph-sun dark:hidden text-orange-500"></i>
+                    <i class="ph-fill ph-moon hidden dark:block text-brand-neon"></i>
+                </button>
+                <button onclick="openApplyModal()" class="bg-textLight dark:bg-textDark text-bgLight dark:text-bgDark px-6 py-2.5 rounded-full font-bold text-sm hover:opacity-90 transition-opacity hidden sm:block">
+                    Apply Now
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow pt-28 pb-12 px-4 sm:px-6 max-w-7xl mx-auto w-full">
+
+        <!-- ================= PAGE: HOME ================= -->
+        <div id="view-home" class="page-view">
+            <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6 auto-rows-[minmax(180px,_auto)]">
+                
+                <!-- Hero Block -->
+                <div class="bento-card md:col-span-4 md:row-span-2 bg-textLight text-bgLight dark:bg-[#18181B] dark:text-white flex flex-col justify-between overflow-hidden">
+                    <div class="noise-bg"></div>
+                    <div class="relative z-10">
+                        <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold uppercase tracking-wider mb-6 dark:text-white">
+                            <span class="w-2 h-2 rounded-full bg-brand-neon animate-pulse-fast"></span> Admissions Open 2024
+                        </span>
+                        <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter leading-[0.9] mb-6 dark:text-white">
+                            Shape Your <br> Future.
+                        </h1>
+                        <p class="text-lg md:text-xl text-gray-400 dark:text-gray-300 max-w-md font-medium">
+                            Empowering students in Deoghar with premier education in Arts, Science, and Commerce.
+                        </p>
+                    </div>
+                    <div class="relative z-10 mt-8 flex gap-4">
+                        <button onclick="navigate('streams')" class="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center text-2xl hover:-rotate-45 transition-transform shadow-lg">
+                            <i class="ph ph-arrow-up-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Location Block -->
+                <div class="bento-card interactive md:col-span-2 bg-brand-neon text-black flex flex-col justify-between" onclick="showLocationToast()">
+                    <div class="flex justify-between items-start">
+                        <div class="w-12 h-12 bg-black text-brand-neon rounded-full flex items-center justify-center text-2xl">
+                            <i class="ph-fill ph-map-pin"></i>
+                        </div>
+                        <i class="ph ph-arrow-up-right text-xl opacity-50 text-black"></i>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="text-2xl font-bold text-black">Deoghar</h3>
+                        <p class="font-medium text-black opacity-80 text-sm mt-1">Jharkhand, India</p>
+                    </div>
+                </div>
+
+                <!-- Affiliation Block -->
+                <div class="bento-card interactive md:col-span-2 bg-white text-black dark:bg-[#27272A] dark:text-white flex flex-col items-center justify-center text-center" onclick="showAffiliationToast()">
+                    <i class="ph-fill ph-certificate text-5xl text-brand-blue mb-4"></i>
+                    <h3 class="text-xl font-bold dark:text-white">JAC Ranchi</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 font-medium mt-1">Recognized & Affiliated</p>
+                </div>
+
+                <!-- Principal Block -->
+                <div class="bento-card interactive md:col-span-4 row-span-1 bg-gray-100 dark:bg-[#18181B] flex flex-col sm:flex-row items-center gap-6" onclick="navigate('about')">
+                    <div class="w-24 h-24 rounded-full flex-shrink-0 flex items-center justify-center overflow-hidden border-4 border-white dark:border-black bg-gray-300">
+                         <!-- Fallback icon ensures it doesn't break if principal.jpg is missing -->
+                         <img src="principal.jpg" alt="Manoj Kumar Mathpati" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'#9ca3af\'><path d=\'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z\'/></svg>'">
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-brand-blue uppercase tracking-wider mb-1">From the Principal's Desk</p>
+                        <h2 class="text-2xl font-bold mb-2 dark:text-white">Sri Manoj Kumar Mathpati</h2>
+                        <p class="text-sm text-gray-600 dark:text-gray-400">"Education is the passport to the future, for tomorrow belongs to those who prepare for it today. We strive to provide that preparation."</p>
+                    </div>
+                </div>
+
+                <!-- UDISE Block -->
+                <div class="bento-card interactive md:col-span-2 bg-white dark:bg-[#18181B] border-2 border-dashed border-gray-200 dark:border-gray-800 flex flex-col items-center justify-center text-center" onclick="navigate('udise')">
+                    <i class="ph-fill ph-identification-card text-4xl text-gray-400 mb-2"></i>
+                    <h3 class="text-lg font-bold dark:text-white">UDISE Details</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 font-medium mt-1">View official registry</p>
+                </div>
+
+                <!-- Streams Navigation Block -->
+                <div class="bento-card interactive md:col-span-2 bg-brand-purple text-white flex flex-col justify-between" onclick="navigate('streams')">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-3xl font-bold leading-none text-white">Explore<br>Streams</h3>
+                        <i class="ph ph-arrow-right text-3xl text-white"></i>
+                    </div>
+                    <div class="flex gap-2 mt-8 text-white">
+                        <span class="px-3 py-1 bg-black/20 rounded-full text-sm font-semibold">I.A.</span>
+                        <span class="px-3 py-1 bg-black/20 rounded-full text-sm font-semibold">I.Sc.</span>
+                        <span class="px-3 py-1 bg-black/20 rounded-full text-sm font-semibold">I.Com.</span>
+                    </div>
+                </div>
+
+                <!-- Notices Block -->
+                <div class="bento-card interactive md:col-span-2 bg-brand-red text-white flex flex-col justify-between" onclick="navigate('notices')">
+                    <div class="flex justify-between items-start">
+                        <div class="w-12 h-12 bg-black/20 rounded-full flex items-center justify-center text-2xl text-white">
+                            <i class="ph-fill ph-bell-ringing"></i>
+                        </div>
+                        <span class="px-2 py-1 bg-white text-brand-red text-[10px] font-bold rounded-full animate-pulse-fast">NEW</span>
+                    </div>
+                    <div class="mt-8 text-white">
+                        <h3 class="text-2xl font-bold">Notice Board</h3>
+                        <p class="font-medium opacity-80 text-sm mt-1">Updates & Exam Schedules</p>
+                    </div>
+                </div>
+
+                <!-- Notes Block -->
+                <div class="bento-card interactive md:col-span-2 bg-brand-orange text-white flex flex-col justify-between" onclick="navigate('notes')">
+                    <div class="flex justify-between items-start">
+                        <div class="w-12 h-12 bg-black/20 rounded-full flex items-center justify-center text-2xl text-white">
+                            <i class="ph-fill ph-files"></i>
+                        </div>
+                        <i class="ph ph-download-simple text-xl opacity-50 text-white"></i>
+                    </div>
+                    <div class="mt-8 text-white">
+                        <h3 class="text-2xl font-bold">Study Notes</h3>
+                        <p class="font-medium opacity-80 text-sm mt-1">Download PDFs & PYQs</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ================= PAGE: STREAMS ================= -->
+        <div id="view-streams" class="page-view">
+            <div class="flex items-center gap-4 mb-8">
+                <button onclick="navigate('home')" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-[#27272A] dark:text-white flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-700 transition">
+                    <i class="ph ph-arrow-left text-xl"></i>
+                </button>
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tight dark:text-white">Academic Streams</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Arts -->
+                <div class="bento-card interactive bg-white dark:bg-[#18181B] flex flex-col h-[400px]" onclick="navigate('syllabus')">
+                    <div class="w-16 h-16 rounded-2xl bg-brand-purple/20 text-brand-purple flex items-center justify-center text-3xl mb-auto">
+                        <i class="ph-fill ph-palette"></i>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="text-5xl font-bold mb-2 dark:text-white">I.A.</h3>
+                        <p class="text-xl font-medium text-gray-500 dark:text-gray-400 mb-6">Intermediate of Arts</p>
+                        <div class="flex items-center gap-2 text-sm font-bold border border-gray-200 dark:border-gray-700 dark:text-white w-max px-4 py-2 rounded-full">
+                            View Syllabus <i class="ph ph-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Science -->
+                <div class="bento-card interactive bg-white dark:bg-[#18181B] flex flex-col h-[400px]" onclick="navigate('syllabus')">
+                    <div class="w-16 h-16 rounded-2xl bg-brand-blue/20 text-brand-blue flex items-center justify-center text-3xl mb-auto">
+                        <i class="ph-fill ph-atom"></i>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="text-5xl font-bold mb-2 dark:text-white">I.Sc.</h3>
+                        <p class="text-xl font-medium text-gray-500 dark:text-gray-400 mb-6">Intermediate of Science</p>
+                        <div class="flex items-center gap-2 text-sm font-bold border border-gray-200 dark:border-gray-700 dark:text-white w-max px-4 py-2 rounded-full">
+                            View Syllabus <i class="ph ph-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+                <!-- Commerce -->
+                <div class="bento-card interactive bg-white dark:bg-[#18181B] flex flex-col h-[400px]" onclick="navigate('syllabus')">
+                    <div class="w-16 h-16 rounded-2xl bg-brand-orange/20 text-brand-orange flex items-center justify-center text-3xl mb-auto">
+                        <i class="ph-fill ph-calculator"></i>
+                    </div>
+                    <div class="mt-8">
+                        <h3 class="text-5xl font-bold mb-2 dark:text-white">I.Com.</h3>
+                        <p class="text-xl font-medium text-gray-500 dark:text-gray-400 mb-6">Intermediate of Commerce</p>
+                        <div class="flex items-center gap-2 text-sm font-bold border border-gray-200 dark:border-gray-700 dark:text-white w-max px-4 py-2 rounded-full">
+                            View Syllabus <i class="ph ph-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: SYLLABUS ================= -->
+        <div id="view-syllabus" class="page-view">
+            <div class="flex items-center gap-4 mb-8">
+                <button onclick="navigate('streams')" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-[#27272A] dark:text-white flex items-center justify-center hover:bg-gray-300 dark:hover:bg-gray-700 transition">
+                    <i class="ph ph-arrow-left text-xl"></i>
+                </button>
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tight dark:text-white">Stream Syllabus</h2>
+            </div>
+            
+            <div class="space-y-6">
+                <!-- Arts -->
+                <div class="bento-card bg-white dark:bg-[#18181B]">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-3 dark:text-white"><span class="w-8 h-8 rounded-full bg-brand-purple text-white flex items-center justify-center text-sm"><i class="ph-fill ph-palette"></i></span> I.A. (Arts)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-medium">
+                        <div class="bg-gray-50 dark:bg-[#27272A] dark:text-gray-200 p-4 rounded-xl"><b>Compulsory:</b> English or Hindi</div>
+                        <div class="bg-gray-50 dark:bg-[#27272A] dark:text-gray-200 p-4 rounded-xl"><b>Electives (Choose 3):</b> History, Geography, Political Science, Economics, Sociology.</div>
+                        <div class="bg-gray-50 dark:bg-[#27272A] dark:text-gray-200 p-4 rounded-xl md:col-span-2"><b>Optional/Additional:</b> Regional Languages / Sanskrit.</div>
+                    </div>
+                </div>
+
+                <!-- Science -->
+                <div class="bento-card bg-white dark:bg-[#18181B]">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-3 dark:text-white"><span class="w-8 h-8 rounded-full bg-brand-blue text-white flex items-center justify-center text-sm"><i class="ph-fill ph-atom"></i></span> I.Sc. (Science)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-medium">
+                        <div class="bg-gray-50 dark:bg-[#27272A] dark:text-gray-200 p-4 rounded-xl"><b>Compulsory:</b> English or Hindi</div>
+                        <div class="bg-gray-50 dark:bg-[#27272A] dark:text-gray-200 p-4 rounded-xl"><b>Core subjects:</b> Physics, Chemistry</div>
+                        <div class="bg-gray-50 dark:bg-[#27272A] dark:text-gray-200 p-4 rounded-xl md:col-span-2"><b>Math/Bio Branch:</b> Mathematics AND/OR Biology. (Computer Science available as optional).</div>
+                    </div>
+                </div>
+
+                <!-- Commerce -->
+                <div class="bento-card bg-white dark:bg-[#18181B]">
+                    <h3 class="text-2xl font-bold mb-4 flex items-center gap-3 dark:text-white"><span class="w-8 h-8 rounded-full bg-brand-orange text-white flex items-center justify-center text-sm"><i class="ph-fill ph-calculator"></i></span> I.Com. (Commerce)</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm font-medium">
+                        <div class="bg-gray-50 dark:bg-[#27272A] dark:text-gray-200 p-4 rounded-xl"><b>Compulsory:</b> English or Hindi</div>
+                        <div class="bg-gray-50 dark:bg-[#27272A] dark:text-gray-200 p-4 rounded-xl"><b>Core subjects:</b> Accountancy, Business Studies.</div>
+                        <div class="bg-gray-50 dark:bg-[#27272A] dark:text-gray-200 p-4 rounded-xl md:col-span-2"><b>Electives (Choose 1):</b> Economics, Commercial Arithmetic, Entrepreneurship.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: NOTICES ================= -->
+        <div id="view-notices" class="page-view">
+             <div class="flex items-center gap-4 mb-8">
+                <button onclick="navigate('home')" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-[#27272A] dark:text-white flex items-center justify-center transition"><i class="ph ph-arrow-left text-xl"></i></button>
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tight dark:text-white">Notice Board</h2>
+            </div>
+            <div class="space-y-4">
+                <div class="bento-card bg-white dark:bg-[#18181B] p-6 flex items-start gap-6">
+                    <div class="w-16 h-16 bg-brand-red/10 text-brand-red rounded-2xl flex flex-col items-center justify-center font-bold flex-shrink-0"><span class="text-xl leading-none">12</span><span class="text-xs">AUG</span></div>
+                    <div><h4 class="text-xl font-bold mb-1 dark:text-white">Class 11 Registration Open</h4><p class="text-gray-500 dark:text-gray-400 font-medium">JAC board registration for class 11 begins next week. Bring aadhar, photos, and marksheets.</p></div>
+                </div>
+                <div class="bento-card bg-white dark:bg-[#18181B] p-6 flex items-start gap-6">
+                    <div class="w-16 h-16 bg-gray-100 dark:bg-[#27272A] dark:text-gray-300 rounded-2xl flex flex-col items-center justify-center font-bold flex-shrink-0"><span class="text-xl leading-none">05</span><span class="text-xs">AUG</span></div>
+                    <div><h4 class="text-xl font-bold mb-1 dark:text-white">Independence Day Celebration</h4><p class="text-gray-500 dark:text-gray-400 font-medium">Mandatory attendance for flag hoisting ceremony at 8:00 AM.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: NOTES ================= -->
+        <div id="view-notes" class="page-view">
+            <div class="flex items-center gap-4 mb-8">
+                <button onclick="navigate('home')" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-[#27272A] dark:text-white flex items-center justify-center transition"><i class="ph ph-arrow-left text-xl"></i></button>
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tight dark:text-white">Study Materials</h2>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="bento-card interactive bg-white dark:bg-[#18181B] text-center" onclick="downloadFile('Physics')">
+                    <i class="ph-fill ph-file-pdf text-5xl text-brand-red mb-4"></i><h4 class="text-lg font-bold dark:text-white">Physics Ch-1</h4><p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">Electrostatics</p>
+                    <div class="text-xs font-bold text-brand-blue uppercase tracking-widest">Download</div>
+                </div>
+                <div class="bento-card interactive bg-white dark:bg-[#18181B] text-center" onclick="downloadFile('History')">
+                    <i class="ph-fill ph-file-pdf text-5xl text-brand-red mb-4"></i><h4 class="text-lg font-bold dark:text-white">History PYQ</h4><p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">Past 5 Years</p>
+                    <div class="text-xs font-bold text-brand-blue uppercase tracking-widest">Download</div>
+                </div>
+                <div class="bento-card interactive bg-white dark:bg-[#18181B] text-center" onclick="downloadFile('Accounts')">
+                    <i class="ph-fill ph-file-pdf text-5xl text-brand-red mb-4"></i><h4 class="text-lg font-bold dark:text-white">Accounts</h4><p class="text-sm text-gray-500 dark:text-gray-400 mt-1 mb-4">Partnership Notes</p>
+                    <div class="text-xs font-bold text-brand-blue uppercase tracking-widest">Download</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: UDISE ================= -->
+        <div id="view-udise" class="page-view">
+             <div class="flex items-center gap-4 mb-8">
+                <button onclick="navigate('home')" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-[#27272A] dark:text-white flex items-center justify-center transition"><i class="ph ph-arrow-left text-xl"></i></button>
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tight dark:text-white">UDISE Record</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Using UDISE Code provided -->
+                <div class="bento-card bg-brand-neon text-black flex flex-col justify-center items-center text-center py-12">
+                    <i class="ph-fill ph-identification-card text-7xl mb-6"></i>
+                    <p class="font-bold text-xl mb-3 text-black">Institution UDISE Code</p>
+                    <div class="bg-black text-brand-neon px-8 py-4 rounded-2xl text-4xl sm:text-5xl font-mono tracking-widest font-bold shadow-xl">
+                        20070334807
+                    </div>
+                </div>
+                <div class="bento-card bg-white dark:bg-[#18181B]">
+                    <h3 class="text-2xl font-bold mb-6 dark:text-white">Official Information</h3>
+                    <ul class="space-y-4 font-medium">
+                        <li class="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2"><span class="text-gray-500 dark:text-gray-400">Institution Name</span> <span class="text-right dark:text-white">P.T. B.N. Jha Memorial Inter College</span></li>
+                        <li class="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2"><span class="text-gray-500 dark:text-gray-400">District</span> <span class="dark:text-white">Deoghar</span></li>
+                        <li class="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2"><span class="text-gray-500 dark:text-gray-400">State</span> <span class="dark:text-white">Jharkhand</span></li>
+                        <li class="flex justify-between border-b border-gray-100 dark:border-gray-800 pb-2"><span class="text-gray-500 dark:text-gray-400">Affiliation</span> <span class="dark:text-white">JAC, Ranchi</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= PAGE: ABOUT & CONTACT ================= -->
+        <div id="view-about" class="page-view">
+             <div class="flex items-center gap-4 mb-8">
+                <button onclick="navigate('home')" class="w-12 h-12 rounded-full bg-gray-200 dark:bg-[#27272A] dark:text-white flex items-center justify-center transition"><i class="ph ph-arrow-left text-xl"></i></button>
+                <h2 class="text-4xl md:text-6xl font-bold tracking-tight dark:text-white">About College</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Info block -->
+                <div class="bento-card bg-textLight text-bgLight dark:bg-[#18181B] dark:text-white">
+                    <h3 class="text-3xl font-bold mb-6 dark:text-white">Our Legacy</h3>
+                    <p class="text-lg opacity-80 mb-6 leading-relaxed dark:text-gray-300">
+                        P.T. B.N. Jha Memorial Inter College is a premier educational institution located in the heart of Deoghar. 
+                        Affiliated with the Jharkhand Academic Council (JAC), Ranchi, we are dedicated to academic excellence and holistic development.
+                    </p>
+                    <ul class="space-y-4 font-medium">
+                        <li class="flex items-center gap-3 dark:text-gray-200"><i class="ph-fill ph-check-circle text-brand-neon text-xl"></i> Dedicated Faculty</li>
+                        <li class="flex items-center gap-3 dark:text-gray-200"><i class="ph-fill ph-check-circle text-brand-neon text-xl"></i> Modern Infrastructure</li>
+                        <li class="flex items-center gap-3 dark:text-gray-200"><i class="ph-fill ph-check-circle text-brand-neon text-xl"></i> Holistic Education</li>
+                    </ul>
+                </div>
+
+                <!-- Contact Form Block -->
+                <div class="bento-card bg-brand-neon text-black">
+                    <h3 class="text-3xl font-bold mb-2 text-black">Get in touch</h3>
+                    <p class="mb-6 font-medium opacity-80 text-black">Have questions regarding admission?</p>
+                    
+                    <form id="contactForm" onsubmit="handleContactSubmit(event)" class="space-y-4">
+                        <input type="text" placeholder="Your Name" required class="w-full px-4 py-3 rounded-xl bg-white/50 border border-black/10 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black">
+                        <input type="tel" placeholder="Phone Number" required class="w-full px-4 py-3 rounded-xl bg-white/50 border border-black/10 text-black placeholder-black/60 focus:outline-none focus:ring-2 focus:ring-black">
+                        <button type="submit" class="w-full bg-black text-brand-neon font-bold py-3.5 rounded-xl hover:bg-gray-900 transition flex items-center justify-center gap-2">
+                            Send Message <i class="ph ph-paper-plane-right"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto py-8 text-center text-sm font-medium text-gray-500 dark:text-gray-400 border-t border-gray-200 dark:border-gray-800">
+        <p>© 2024 P.T. B.N. Jha Memorial Inter College. All rights reserved.</p>
+        <p class="mt-1">Affiliated to JAC Ranchi | Located in Deoghar</p>
+    </footer>
+
+    <!-- Javascript Logic -->
+    <script>
+        // --- 1. SPLASH SCREEN SEQUENCE ---
+        window.addEventListener('load', () => {
+            const splash = document.getElementById('splash-screen');
+            const nav = document.getElementById('main-nav');
+            
+            setTimeout(() => {
+                splash.style.opacity = '0'; 
+                
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    nav.classList.remove('opacity-0', '-translate-y-full');
+                    
+                    iziToast.show({
+                        title: 'Welcome!',
+                        message: 'To P.T. B.N. Jha Memorial Inter College portal.',
+                        position: 'topRight',
+                        theme: document.documentElement.classList.contains('dark') ? 'dark' : 'light',
+                        icon: 'ph ph-hand-waving',
+                        timeout: 4000
+                    });
+                }, 500); 
+            }, 2000); 
+        });
+
+        // --- 2. Theme Toggling Logic ---
+        const html = document.documentElement;
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        function toggleTheme() {
+            html.classList.toggle('dark');
+            const isDark = html.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            
+            iziToast.show({ 
+                title: isDark ? 'Dark Mode' : 'Light Mode', 
+                message: 'Theme updated.', 
+                icon: isDark ? 'ph ph-moon' : 'ph ph-sun', 
+                position: 'bottomCenter', 
+                theme: isDark ? 'dark' : 'light',
+                backgroundColor: isDark ? '#27272A' : '#ffffff',
+                titleColor: isDark ? '#fff' : '#000',
+                messageColor: isDark ? '#aaa' : '#666',
+                timeout: 1500
+            });
+        }
+
+        // --- 3. SPA Navigation Logic ---
+        function navigate(viewId) {
+            document.querySelectorAll('.page-view').forEach(view => {
+                view.classList.remove('active');
+            });
+            
+            const targetView = document.getElementById(`view-${viewId}`);
+            if(targetView) {
+                setTimeout(() => { targetView.classList.add('active'); }, 50);
+            }
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- 4. Interactive Elements ---
+        function showLocationToast() {
+            iziToast.show({
+                title: 'Location', message: 'Deoghar, Jharkhand.',
+                position: 'bottomRight', color: '#CCFF00', icon: 'ph ph-map-pin'
+            });
+        }
+
+        function showAffiliationToast() {
+            Swal.fire({
+                title: 'JAC Ranchi Affiliated',
+                text: 'Our college strictly follows the curriculum and guidelines set by the Jharkhand Academic Council.',
+                icon: 'success',
+                confirmButtonText: 'Great!',
+                confirmButtonColor: '#3B82F6'
+            });
+        }
+
+        function downloadFile(filename) {
+            Swal.fire({
+                title: 'Downloading...',
+                text: `${filename} notes will be downloaded.`,
+                icon: 'info',
+                timer: 1500,
+                showConfirmButton: false
+            });
+        }
+
+        function openApplyModal() {
+             Swal.fire({
+                title: 'Begin Admission',
+                input: 'select',
+                inputOptions: { 'ia': 'I.A. (Arts)', 'isc': 'I.Sc. (Science)', 'icom': 'I.Com. (Commerce)' },
+                inputPlaceholder: 'Select desired stream',
+                showCancelButton: true,
+                confirmButtonText: 'Next &rarr;',
+                confirmButtonColor: '#09090B'
+            }).then((result) => {
+                if (result.isConfirmed && result.value) {
+                    Swal.fire({ title: 'Almost there!', text: 'Redirecting to portal...', icon: 'info', timer: 2000, showConfirmButton: false });
+                }
+            });
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            Swal.fire({ title: 'Sending...', allowOutsideClick: false, didOpen: () => { Swal.showLoading(); } });
+            setTimeout(() => {
+                e.target.reset();
+                Swal.fire({ title: 'Sent!', text: 'We will contact you shortly.', icon: 'success', confirmButtonColor: '#CCFF00', customClass: { confirmButton: 'text-black font-bold' } });
+            }, 1000);
+        }
+
+        // --- 5. Service Worker for PWA ---
+        if ('serviceWorker' in navigator) {
+            const swCode = `
+                self.addEventListener('install', e => self.skipWaiting());
+                self.addEventListener('activate', e => self.clients.claim());
+                self.addEventListener('fetch', e => {});
+            `;
+            const blob = new Blob([swCode], { type: 'application/javascript' });
+            navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(console.error);
+        }
+    </script>
+</body>
+</html>
